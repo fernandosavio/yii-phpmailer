@@ -1,5 +1,5 @@
 <?php
-/*~ class.smtp.php
+/*~ SMTP.php
 .---------------------------------------------------------------------------.
 |  Software: PHPMailer - PHP email class                                    |
 |   Version: 5.2.1                                                          |
@@ -32,7 +32,7 @@
  * @author Jim Jagielski
  * @copyright 2010 - 2012 Jim Jagielski
  * @license http://www.gnu.org/copyleft/lesser.html Distributed under the Lesser General Public License (LGPL)
- * @version $Id: class.smtp.php 450 2010-06-23 16:46:33Z coolbru $
+ * @version $Id: SMTP.php 450 2010-06-23 16:46:33Z coolbru $
  */
 
 /**

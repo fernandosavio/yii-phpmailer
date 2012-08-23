@@ -1,121 +1,28 @@
 <?php
-
-/**
- * YiiMailer class file.
- *
- * @author Fernando Savio
- * @version 1.0
- * @link https://github.com/fernandosavio/yii-phpmailer
- *
- * 	This program is free software: you can redistribute it and/or modify
- * 	it under the terms of the GNU Lesser General Public License as published by
- * 	the Free Software Foundation, either version 1.0 of the License, or
- * 	(at your option) any later version.
- *
- * 	This program is distributed in the hope that it will be useful,
- * 	but WITHOUT ANY WARRANTY; without even the implied warranty of
- * 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * 	GNU Lesser General Public License for more details.
- *
- * 	You should have received a copy of the GNU Lesser General Public License
- * 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * For third party licenses and copyrights, please see phpmailer/LICENSE
- *
- */
-
-/**
- * Include the the PHPMailer class.
- * 
- * @
- */
-Yii::import('ext\\yii-phpmailer\\PHPMailer\\class.phpmailer');
+Yii::import('ext.yii-phpmailer.PHPMailer.PHPMailer');
 
 /**
  * YiiMailer is a wrapper for the PHPMailer 5.2.1 library.
  * @see https://github.com/fernandosavio/Yii-PHPMailer
  *
  * @author Fernando Savio
- * @package application.extensions.yii-phpmailer
+ * @package extensions
+ * @subpackage yii-phpmailer
  * @since 1.0
+ * 
  */
 class YiiMailer extends CApplicationComponent {
-    
-    
-    //***************************************************************************
-    // Constants
-    //***************************************************************************
-    
-    /**
-     * SMTP method to send mail
-     * @var string
-     */
-    const MAIL_MODE_SMTP = 'smtp';
-    
-    /**
-     * Sendmail method to send mail
-     * @var string
-     */
-    const MAIL_MODE_SENDMAIL = 'sendmail';
-    
-    /**
-     * Mail method to send mail
-     * @var string
-     */
-    const MAIL_MODE_MAIL = 'mail';
-    
-    /**
-     * 8bit encoding method
-     * @var string
-     */
-    const ENCODING_8BIT = '8bit';
-    
-    /**
-     * 7bit encoding method
-     * @var string
-     */
-    const ENCODING_7BIT = '7bit';
-    
-    /**
-     * Binary encoding method
-     * @var string
-     */
-    const ENCODING_BINARY = 'binary';
-    
-    /**
-     * Base64 encoding method
-     * @var string
-     */
-    const ENCODING_BASE64 = 'base64';
-    
-    /**
-     * Quoted Printable encoding method
-     * @var string
-     */
-    const ENCODING_QUOTED_PRINTABLE = 'quoted-printable';
-    
-            
-    //***************************************************************************
-    // Configuration
-    //***************************************************************************
-    
-    /**
-     * The path to the directory where the view for getView is stored. Must not
-     * have ending dot.
-     *
-     * @var string
-     */
-    protected $pathViews = 'application.views.email';
-    
-    /**
-     * The path to the directory where the layout for mails is stored. Must not
-     * have ending dot.
-     *
-     * @var string
-     */
-    protected $pathLayout = 'application.views.layout.email';
 
+    public $pathViews   = 'application.views.email';
+    public $pathLayouts = 'application.views.layouts.email';
+    public $delivery    = 'local';
 
+    /**
+     *
+     * @var PHPMailer
+     */
+    private $_mailer;
+    
     /**
      * The PHPMailer user settings.
      * 
@@ -123,7 +30,7 @@ class YiiMailer extends CApplicationComponent {
      * <ul>
      * <li><b>Priority</b>: Email priority (1=High, 3=Normal, 5=Low). Default: 3.</li>
      * <li><b>CharSet</b>: Sets the CharSet of the message. Default: 'utf-8'.</li>
-     * <li><b>ContentType</b>: Sets the Content-type of the message. Default: 'text/plain'.</li>
+     * <li><b>ContentType</b>: Sets the Content-type of the message. Default: 'text/html'.</li>
      * <li><b>Encoding</b>: Sets the Encoding of the message. Options for this are "8bit", "7bit", "binary", "base64", and "quoted-printable". Default: '8bit'.</li>
      * <li><b>From</b>: Sets the From email address for the message. Default: 'root@localhost'.</li>
      * <li><b>FromName</b>: Sets the From name of the message. Default: 'Root User'.</li>
@@ -176,201 +83,96 @@ class YiiMailer extends CApplicationComponent {
      * <li><b>XMailer</b>: What to use in the X-Mailer header. Default: ''.</li>
      * </ul>
      * 
-     * @var array
-     */
-    protected $settings = array();
-
-    /**
-     * The default PHPMailer options.
      * @var array 
      */
-    private $_settings = array(
-        
-        // General Properties
-        'CharSet' => 'utf-8',
-        'ContentType' => 'text/html',
-        //'WordWrap' => 0,
-        'Mailer' =>  self::MAIL_MODE_MAIL,
-        'SendMail' => '/usr/sbin/sendmail',
-        'PluginDir' => '',
-        'ConfirmReadingTo' => '',
-        'Hostname' => '',
-        
-        // Properties for SMTP
-        'Host' => 'localhost',
-        'Port' => 25,
-        'Helo' => '',
-        'SMTPAuth' => false,
-        'Username' => '',
-        'Password' => '',
-        'Timeout' => 10,
-        'SMTPDebug' => false,
-        'SMTPKeepAlive' => false,
-        'SingleTo' => false,
-        
-        // Non-documented properties - General (v5.0.0 Docs)
-        'MIMEBody' => '',
-        'MIMEHead' => '',
-        'SentMIMEMessage' => '',
-        'MessageID' => '',
-        
-        // Non-documented properties - SMTP (v5.0.0 Docs)
-        'SMTPSecure' => '',
-        'SingleToArray' => array(),
-        'LE' => '\n',
-        'DKIM_selector' => 'phpmailer',
-        'DKIM_identity' => '',
-        'DKIM_passphrase' => '',
-        'DKIM_domain' => '',
-        'DKIM_private' => '',
-        'action_function' => '',
-        'XMailer' => '',
+    private $settings = array(
+        'default' => array(
+            'CharSet' => 'utf-8',
+            'ContentType' => 'text/html',
+            //'Hostname' => '',
+        ),
+        'delivery' => array(
+            'local' => array(
+                'WordWrap' => 70,
+                'Mailer' => 'mail',
+            ),
+            'gmail' => array(
+                'Mailer'     => 'smtp',
+                'Host'       => 'smtp.gmail.com',
+                'Port'       => '465',
+                'SMTPAuth'   => true,
+                'SMTPSecure' => 'ssl',
+            ),
+            'custom' => array(),
+        ),
     );
-
-    //***************************************************************************
-    // Private properties
-    //***************************************************************************
-
-    /**
-     * The internal PHPMailer object.
-     *
-     * @var object PHPMailer
-     */
-    private $_mailer;
-
-    //***************************************************************************
-    // Initialization
-    //***************************************************************************
-
-    /**
-     * Init method for the application component mode.
-     */
+    
     public function init() {
-        $this->_mailer = new PHPMailer();
-        $this->setOptions($this->settings);
+        if(!isset($this->settings['delivery'][$this->delivery])) {
+            throw new CException(Yii::t('YiiMailer', 'Delivery must be valid'));
+        }
+
+        foreach (array_merge($this->settings['default'], $this->settings['delivery'][$this->delivery]) as $key => $value) {
+            $this->_mailer->set($key, $value);
+        }
+        
+        $this->_mailer->SetFrom($this->_mailer->From,$this->_mailer->FromName);
         
         parent::init();
     }
 
-    //***************************************************************************
-    // Setters and getters
-    //***************************************************************************
+    public function setEmailContent($view, $vars = array(), $layout = false) {
+        $body = Yii::app()->controller->renderPartial($this->pathViews . '.' . $view, $vars, true);
 
-    /**
-     * Take an array with options and set all of it in the PHPMailer object.
-     * @param array $opts
-     * @throws CException
-     */
-    public function setOptions($opts = array()){
-        if(!is_array($opts))
-            throw new CException(Yii::t('YiiMailer', 'Options must be an array'));
-        
-        // update private settings
-        $this->_settings = array_merge($this->_settings, $opts);
-        
-        foreach ($opts as $option => $value)
-            $this->_mailer->set($option, $value);
+        if (!$layout) {
+            $this->_mailer->MsgHTML($body);
+        } else {
+            $this->_mailer->MsgHTML(Yii::app()->controller->renderPartial($this->pathLayouts . '.' . $layout, array('content' => $body), true));
+        }
     }
     
-    /**
-     * Setter
-     *
-     * @param string $value pathLayouts
-     */
-    public function setPathLayouts($value) {
-        if (!is_string($value) || !Yii::getPathOfAlias($value))
-            throw new CException(Yii::t('YiiMailer', 'pathLayouts must be a Yii alias path'));
-        $this->pathLayouts = $value;
+    public function makeAndSend($to, $subject, $view, $vars) {
+        $this->_mailer->AddAddress($to);
+        $this->_mailer->Subject = $subject;
+        $this->setEmailContent($view, $vars, 'main');
+        
+        $return = $this->_mailer->Send();
+        
+        $this->_mailer->ClearAllRecipients();
+        $this->_mailer->ClearAttachments();
+        
+        return $return;
     }
-
-    /**
-     * Getter
-     *
-     * @return string pathLayouts
-     */
-    public function getPathLayouts() {
-        return $this->pathLayouts;
+    
+    // MAGIC Methods
+    
+    public function __construct() {
+         $this->_mailer = new PHPMailer();
     }
-
-    /**
-     * Setter
-     *
-     * @param string $value pathViews
-     */
-    public function setPathViews($value) {
-        if (!is_string($value) || !Yii::getPathOfAlias($value))
-            throw new CException(Yii::t('YiiMailer', 'pathViews must be a Yii alias path'));
-        $this->pathViews = $value;
-    }
-
-    /**
-     * Getter
-     *
-     * @return string pathViews
-     */
-    public function getPathViews() {
-        return $this->pathViews;
-    }
-
-    //***************************************************************************
-    // Magic
-    //***************************************************************************
-
-    /**
-     * Call a PHPMailer function
-     *
-     * @param string $method the method to call
-     * @param array $params the parameters
-     * @return mixed
-     */
-    public function __call($method, $params) {
-        return call_user_func_array(array($this->_mailer, $method), $params);
-    }
-
-    /**
-     * Setter
-     *
-     * @param string $name the property name
-     * @param string $value the property value
-     */
-    public function __set($name, $value) {
-        $this->_mailer->$name = $value;
-    }
-
-    /**
-     * Getter
-     *
-     * @param string $name
-     * @return mixed
-     */
-    public function __get($name) {
-        return $this->_mailer->$name;
-    }
-
-    //***************************************************************************
-    // Utilities
-    //***************************************************************************
-
-    /**
-     * Displays an e-mail in preview mode. 
-     *
-     * @param string $view the class
-     * @param array $vars
-     * @param string $layout
-     */
-    public function getEmailContent($view, $vars = array(), $layout = null, $return = true) {
-        $body = Yii::app()->controller->renderPartial($this->pathViews . '.' . $view, array_merge($vars, array('content' => $this->_mailer)), true);
-
-        if ($layout === null) {
-            $this->_mailer->Body = $body;
+    
+    public function __call($name, $parameters) {
+        if(method_exists($this->_mailer, $name)) {
+            return call_user_func_array(array($this->_mailer, $name), $parameters);
         } else {
-            $this->_mailer->Body = Yii::app()->controller->renderPartial($this->pathLayouts . '.' . $layout, array('content' => $body), true);
+            throw new CException('erro 1');
         }
         
-        if($return)
-            return $this->_mailer->Body;
+        //parent::__call($name, $parameters);
     }
-
     
+    public function __set($name, $value) {
+        $this->_mailer->set($name, $value);
+        
+        //parent::__set($name, $value);
+    }
     
+    public function __get($name) {
+        if(isset($this->_mailer->$name)) {
+            return $this->_mailer->$name;
+        } else {
+            throw new CException('erro 2');
+        }
+        
+        //parent::__get($name);
+    }
 }

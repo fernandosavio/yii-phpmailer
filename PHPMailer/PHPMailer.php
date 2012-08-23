@@ -1,5 +1,5 @@
 <?php
-/*~ class.phpmailer.php
+/*~ PHPMailer.php
 .---------------------------------------------------------------------------.
 |  Software: PHPMailer - PHP email class                                    |
 |   Version: 5.2.1                                                          |
@@ -22,6 +22,8 @@
 '---------------------------------------------------------------------------'
 */
 
+if (version_compare(PHP_VERSION, '5.0.0', '<') ) exit("Sorry, this version of PHPMailer will only run on PHP version 5 or greater!\n");
+
 /**
  * PHPMailer - PHP email transport class
  * NOTE: Requires PHP version 5 or later
@@ -31,11 +33,10 @@
  * @author Jim Jagielski
  * @copyright 2010 - 2012 Jim Jagielski
  * @copyright 2004 - 2009 Andy Prevost
- * @version $Id: class.phpmailer.php 450 2010-06-23 16:46:33Z coolbru $
+ * @version $Id: PHPMailer.php 450 2010-06-23 16:46:33Z coolbru $
  * @license http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License
  */
 
-if (version_compare(PHP_VERSION, '5.0.0', '<') ) exit("Sorry, this version of PHPMailer will only run on PHP version 5 or greater!\n");
 
 class PHPMailer {
 
@@ -791,7 +792,7 @@ class PHPMailer {
    * @return bool
    */
   protected function SmtpSend($header, $body) {
-    require_once $this->PluginDir . 'class.smtp.php';
+    require_once $this->PluginDir . 'SMTP.php';
     $bad_rcpt = array();
 
     if(!$this->SmtpConnect()) {
