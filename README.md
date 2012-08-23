@@ -9,8 +9,8 @@ Exemplo:
   'class' => 'ext.phpmailer.YiiMailer',
   'pathViews' => 'application.views.email',
   'pathLayouts' => 'application.views.layouts.email',
-  'From' => 'naoresponda@grupoadvis.com.br',
-  'FromName' => 'SGCS - Grupo ADVIS',
+  'From' => 'noreply@yourdomain.com',
+  'FromName' => 'William Bell - Massive Dynamic',
   'delivery' => 'local', // local, gmail or custom
   //'Username' => '',
   //'Password' => '',
