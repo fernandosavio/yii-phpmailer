@@ -3,10 +3,10 @@ Yii-PHPMailer-Wrapper
 
 Wrapper for PHPMailer in YII
 
-Exemplo:
+Example of component config in main/config.php:
 ```php
  'email'=>array(
-  'class' => 'ext.phpmailer.YiiMailer',
+  'class' => 'ext.yii-phpmailer.YiiMailer',
   'pathViews' => 'application.views.email',
   'pathLayouts' => 'application.views.layouts.email',
   'From' => 'noreply@yourdomain.com',
