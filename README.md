@@ -4,7 +4,7 @@ Yii-PHPMailer-Wrapper
 Wrapper for PHPMailer in YII
 
 Exemplo:
-
+```php
  'email'=>array(
   'class' => 'ext.phpmailer.YiiMailer',
   'pathViews' => 'application.views.email',
@@ -15,3 +15,4 @@ Exemplo:
   //'Username' => '',
   //'Password' => '',
   ),
+```
