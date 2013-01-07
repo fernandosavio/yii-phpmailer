@@ -1,31 +1,67 @@
 <?php
-Yii::import('ext.yii-phpmailer.PHPMailer.PHPMailer');
+/**
+ * YiiMailer component is a wrapper for the PHPMailer 5.2.2 library.
+ *
+ * Example of component config in main/config.php:
+ *   return array(
+ *       ...
+ *       'components' => array(
+ *           ...
+ *           'email'=>array(
+ *               'class'       => 'ext.yii-phpmailer.YiiMailer',
+ *               'pathViews'   => 'application.views.email',
+ *               'pathLayouts' => 'application.views.layouts.email',
+ *               'From'        => 'belly@massivedynamic.com',
+ *               'FromName'    => 'William Bell - Massive Dynamic',
+ *               'delivery'    => 'gmail', // local, gmail or custom
+ *               'Username'    => 'belly@massivedynamic.com',
+ *               'Password'    => 'swordfish',
+ *           ),
+ *       ),
+ *   )
+ *
+ */
 
 /**
- * YiiMailer is a wrapper for the PHPMailer 5.2.1 library.
- * @see https://github.com/fernandosavio/Yii-PHPMailer
+ * YiiMailer class
  *
- * @author Fernando Savio
+ * @author Fernando Savio <admin@fernandosavio.com>
+ * @author Tonin De Rosso Bolzan <admin@tonybolzan.com>
  * @package extensions
  * @subpackage yii-phpmailer
- * @since 1.0
- * 
+ * @version 0.2
+ * @license http://www.opensource.org/licenses/mit-license.php MIT License
+ *
+ * @see Yii-PHPMailer https://github.com/fernandosavio/Yii-PHPMailer
+ * @see PHPMailer https://code.google.com/a/apache-extras.org/p/phpmailer/
  */
-class YiiMailer extends CApplicationComponent {
+class YiiMailer extends CApplicationComponent
+{
 
-    public $pathViews   = 'application.views.email';
+    /**
+     * @var string Folder path where are the views
+     */
+    public $pathViews = 'application.views.email';
+
+    /**
+     * @var string Folder path where are the layouts
+     */
     public $pathLayouts = 'application.views.layouts.email';
-    public $delivery    = 'local';
+
+    /**
+     * @var string How PHPMailer will deliver the mail
+     */
+    public $delivery = 'local';
 
     /**
      *
-     * @var PHPMailer
+     * @var PHPMailer Object of the PHPMailer to be wrappedr
      */
     private $_mailer;
-    
+
     /**
      * The PHPMailer user settings.
-     * 
+     *
      * <b>General settings</b>:
      * <ul>
      * <li><b>Priority</b>: Email priority (1=High, 3=Normal, 5=Low). Default: 3.</li>
@@ -48,7 +84,7 @@ class YiiMailer extends CApplicationComponent {
      * <li><b>SentMIMEMessage</b>: Stores the complete sent MIME message (Body and Headers). Default: ''.</li>
      * <li><b>MessageID</b>: Sets the message ID to be used in the Message-Id header. If empty, a unique id will be generated. Default: ''.</li>
      * </ul>
-     * 
+     *
      * <b>SMTP settings</b>:
      * <ul>
      * <li><b>Host</b>: Sets the SMTP hosts. All hosts must be separated by a semicolon. You can also specify a different port for each host by using this format: [hostname:port] (e.g. "smtp1.example.com:25;smtp2.example.com"). Hosts will be tried in order. Default: ''.</li>
@@ -82,8 +118,8 @@ class YiiMailer extends CApplicationComponent {
      * </li>
      * <li><b>XMailer</b>: What to use in the X-Mailer header. Default: ''.</li>
      * </ul>
-     * 
-     * @var array 
+     *
+     * @var array
      */
     private $settings = array(
         'default' => array(
@@ -97,31 +133,48 @@ class YiiMailer extends CApplicationComponent {
                 'Mailer' => 'mail',
             ),
             'gmail' => array(
-                'Mailer'     => 'smtp',
-                'Host'       => 'smtp.gmail.com',
-                'Port'       => '465',
-                'SMTPAuth'   => true,
+                'Mailer' => 'smtp',
+                'Host' => 'smtp.gmail.com',
+                'Port' => '465',
+                'SMTPAuth' => true,
                 'SMTPSecure' => 'ssl',
             ),
             'custom' => array(),
         ),
     );
-    
-    public function init() {
-        if(!isset($this->settings['delivery'][$this->delivery])) {
+
+    /**
+     *
+     * An application component is created and initialized only when it is accessed for the first time
+     * during request handling. If an application component needs to be created right after the application instance is
+     * created, it should require the user to list its ID in the CApplication::preload property.
+     *
+     * @return void
+     * @throws CException Delivery must be valid
+     */
+    public function init()
+    {
+        if (!isset($this->settings['delivery'][$this->delivery])) {
             throw new CException(Yii::t('YiiMailer', 'Delivery must be valid'));
         }
 
         foreach (array_merge($this->settings['default'], $this->settings['delivery'][$this->delivery]) as $key => $value) {
             $this->_mailer->set($key, $value);
         }
-        
-        $this->_mailer->SetFrom($this->_mailer->From,$this->_mailer->FromName);
-        
+
+        $this->_mailer->SetFrom($this->_mailer->From, $this->_mailer->FromName);
+
         parent::init();
     }
 
-    public function setEmailContent($view, $vars = array(), $layout = false) {
+    /**
+     * @param string $view Yii view to be rendered in $pathViews
+     * @param array $vars Variables to be sent to CController::renderPartial()
+     * @param bool $layout If a Yii email layout will be used
+     * @return void
+     */
+    public function setEmailContent($view, $vars = array(), $layout = false)
+    {
         $body = Yii::app()->controller->renderPartial($this->pathViews . '.' . $view, $vars, true);
 
         if (!$layout) {
@@ -130,49 +183,79 @@ class YiiMailer extends CApplicationComponent {
             $this->_mailer->MsgHTML(Yii::app()->controller->renderPartial($this->pathLayouts . '.' . $layout, array('content' => $body), true));
         }
     }
-    
-    public function makeAndSend($to, $subject, $view, $vars) {
+
+    /**
+     * @param string $to Destination email
+     * @param string $subject Subject of the message
+     * @param string $view Yii view to be rendered in $pathViews
+     * @param array $vars Variables to be sent to CController::renderPartial()
+     * @return bool If the email was sent
+     */
+    public function makeAndSend($to, $subject, $view, $vars)
+    {
         $this->_mailer->AddAddress($to);
         $this->_mailer->Subject = $subject;
         $this->setEmailContent($view, $vars, 'main');
-        
+
         $return = $this->_mailer->Send();
-        
+
         $this->_mailer->ClearAllRecipients();
         $this->_mailer->ClearAttachments();
-        
+
         return $return;
     }
-    
-    // MAGIC Methods
-    
-    public function __construct() {
-         $this->_mailer = new PHPMailer();
+
+    /**
+     *  Create a PHPMailer object
+     */
+    public function __construct()
+    {
+        require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'PHPMailer' . DIRECTORY_SEPARATOR . 'class.phpmailer.php');
+        $this->_mailer = new PHPMailer();
     }
-    
-    public function __call($name, $parameters) {
-        if(method_exists($this->_mailer, $name)) {
+
+    /**
+     * MAGIC Method to extends call functions from phpmailer (Multiple inheritance)
+     *
+     * @param string $name
+     * @param array $parameters
+     * @return mixed
+     * @throws CException Unknown Method
+     */
+    public function __call($name, $parameters)
+    {
+        if (method_exists($this->_mailer, $name)) {
             return call_user_func_array(array($this->_mailer, $name), $parameters);
         } else {
-            throw new CException('erro 1');
+            throw new CException(Yii::t('YiiMailer', 'Unknown Method'));
         }
-        
-        //parent::__call($name, $parameters);
     }
-    
-    public function __set($name, $value) {
+
+    /**
+     * MAGIC Method to extends setters from phpmailer (Multiple inheritance)
+     *
+     * @param string $name
+     * @param mixed $value
+     * @return void
+     */
+    public function __set($name, $value)
+    {
         $this->_mailer->set($name, $value);
-        
-        //parent::__set($name, $value);
     }
-    
-    public function __get($name) {
-        if(isset($this->_mailer->$name)) {
+
+    /**
+     * MAGIC Method to extends setters from phpmailer (Multiple inheritance)
+     *
+     * @param string $name
+     * @return mixed
+     * @throws CException Unknown Variable
+     */
+    public function __get($name)
+    {
+        if (isset($this->_mailer->$name)) {
             return $this->_mailer->$name;
         } else {
-            throw new CException('erro 2');
+            throw new CException(Yii::t('YiiMailer', 'Unknown Variable'));
         }
-        
-        //parent::__get($name);
     }
 }
