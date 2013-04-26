@@ -189,13 +189,14 @@ class YiiMailer extends CApplicationComponent
      * @param string $subject Subject of the message
      * @param string $view Yii view to be rendered in $pathViews
      * @param array $vars Variables to be sent to CController::renderPartial()
+     * @param string $layout Layout to use on email
      * @return bool If the email was sent
      */
-    public function makeAndSend($to, $subject, $view, $vars)
+    public function makeAndSend($to, $subject, $view, $vars, $layout='main')
     {
         $this->_mailer->AddAddress($to);
         $this->_mailer->Subject = $subject;
-        $this->setEmailContent($view, $vars, 'main');
+        $this->setEmailContent($view, $vars, $layout);
 
         $return = $this->_mailer->Send();
 
