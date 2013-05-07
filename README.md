@@ -19,6 +19,24 @@ return array(
             'Username'    => 'belly@massivedynamic.com',
             'Password'    => 'swordfish',
         ),
+        ...
+        'log' => array(
+            'class'  => 'CLogRouter',
+            'routes' => array(
+                ...
+                'email' => array(
+                    'class'   => 'ext.yii-phpmailer.YiiMailerLogRoute',
+                    'levels'  => 'error, warning',
+                    'except'  => 'exception.CHttpException.404',
+                    'emails'  => array('support@developer.com'),
+                    'subject' => 'Wanning LOG APPLICATION',
+                    'enabled' => true,
+                ),
+                ...
+            ),
+        ),
+        ...
     ),
-)
+    ...
+);
 ```

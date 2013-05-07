@@ -1,5 +1,19 @@
 <?php
 /**
+ * YiiMailer class file
+ *
+ * @author Fernando Savio <admin@fernandosavio.com>
+ * @author Tonin De Rosso Bolzan <admin@tonybolzan.com>
+ * @package extensions
+ * @subpackage yii-phpmailer
+ * @version 5.2.6-1
+ * @license http://www.opensource.org/licenses/mit-license.php MIT License
+ *
+ * @see Yii-PHPMailer https://github.com/fernandosavio/Yii-PHPMailer
+ * @see PHPMailer https://code.google.com/a/apache-extras.org/p/phpmailer/
+ */
+
+/**
  * YiiMailer component is a wrapper for the PHPMailer 5.2.2 library.
  *
  * Example of component config in main/config.php:
@@ -20,20 +34,6 @@
  *       ),
  *   )
  *
- */
-
-/**
- * YiiMailer class
- *
- * @author Fernando Savio <admin@fernandosavio.com>
- * @author Tonin De Rosso Bolzan <admin@tonybolzan.com>
- * @package extensions
- * @subpackage yii-phpmailer
- * @version 0.2
- * @license http://www.opensource.org/licenses/mit-license.php MIT License
- *
- * @see Yii-PHPMailer https://github.com/fernandosavio/Yii-PHPMailer
- * @see PHPMailer https://code.google.com/a/apache-extras.org/p/phpmailer/
  */
 class YiiMailer extends CApplicationComponent
 {
@@ -192,7 +192,7 @@ class YiiMailer extends CApplicationComponent
      * @param string $layout Layout to use on email
      * @return bool If the email was sent
      */
-    public function makeAndSend($to, $subject, $view, $vars, $layout='main')
+    public function makeAndSend($to, $subject, $view, $vars, $layout = 'main')
     {
         $this->_mailer->AddAddress($to);
         $this->_mailer->Subject = $subject;
