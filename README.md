@@ -1,9 +1,9 @@
 Yii-PHPMailer-Wrapper
 =====================
 
-YiiMailer component is a wrapper for the PHPMailer 5.2.2 library.
+YiiMailer component is a wrapper for the PHPMailer 5.2.6 library.
 
-Example of component config in main/config.php:
+Example of component config in config/main.php:
 ```php
 return array(
     ...

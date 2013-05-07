@@ -203,6 +203,11 @@ class YiiMailer extends CApplicationComponent
         $this->_mailer->ClearAllRecipients();
         $this->_mailer->ClearAttachments();
 
+        // Log if email was successfully sended
+        if($return) {
+            Yii::log('"' . Yii::app()->controller->route . '"' . " to: ($to) subject:($subject)", CLogger::LEVEL_PROFILE, 'email');
+        }
+        
         return $return;
     }
 
